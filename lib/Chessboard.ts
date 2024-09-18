@@ -23,7 +23,7 @@ let vnode: VNode;
 
 const patch = init([styleModule, propsModule, eventListenersModule]);
 
-export const isObject = (value: any) =>
+const isObject = (value: any) =>
   value != null && (typeof value == "object" || typeof value == "function");
 
 const classnames = (...args: (string | Record<string, boolean>)[]) => {
@@ -49,7 +49,7 @@ const BLACK_PIECES = ["p", "n", "b", "r", "q", "k"];
 
 type WhitePieceSymbol = "p" | "n" | "b" | "r" | "q" | "k";
 type BlackPieceSymbol = "P" | "N" | "B" | "R" | "Q" | "K";
-type PieceSymbol = WhitePieceSymbol | BlackPieceSymbol;
+export type PieceSymbol = WhitePieceSymbol | BlackPieceSymbol;
 type MaybePieceSymbol = PieceSymbol | ".";
 
 const isWhitePiece = (token: string): token is WhitePieceSymbol =>
@@ -143,7 +143,12 @@ const hSquare = (
   {
     onMousedown,
     onMouseup,
-  }: { onMousedown: (sq: string) => void; onMouseup: (sq: string) => void },
+    onClick,
+  }: {
+    onMousedown: (sq: string) => void;
+    onMouseup: (sq: string) => void;
+    onClick: (sq: string, piece: MaybePieceSymbol) => void;
+  },
 ) => {
   const contents = isPiece(piece)
     ? [
@@ -173,6 +178,9 @@ const hSquare = (
         backgroundColor: bg === "w" ? "#f0d9b5" : "#b58863",
       },
       on: {
+        click: (_evt) => {
+          onClick(square, piece);
+        },
         mousedown: (evt) => {
           evt.preventDefault();
           onMousedown(square);
@@ -207,8 +215,11 @@ const hBoard = (board: Chessboard) => {
   }
 
   const handleMousedown = (sq: string) => {
-    board.dragging = sq;
-    board.fireOnDragStart(sq);
+    const result = board.fireOnDragStart(sq);
+
+    if (result !== false) {
+      board.dragging = sq;
+    }
   };
 
   const handleMouseup = (sq: string) => {
@@ -243,6 +254,7 @@ const hBoard = (board: Chessboard) => {
         return hSquare(square, piece, bg, {
           onMousedown: handleMousedown,
           onMouseup: handleMouseup,
+          onClick: board.fireOnClick,
         });
       });
     }),
@@ -254,7 +266,8 @@ const view = (ctrl: Chessboard) => hBoard(ctrl);
 interface Options {
   position: string;
   orientation?: Color;
-  onDragStart?: (sq: string) => void;
+  onClick?: (sq: string, piece: PieceSymbol | undefined) => void;
+  onDragStart?: (sq: string) => boolean;
   onDragEnd?: () => void;
   onDrop?: (from: string, to: string) => void;
 }
@@ -274,11 +287,11 @@ export default class Chessboard {
     this._position = this.options.position;
     this.orientation = this.options.orientation || "w";
     vnode = patch(container, view(this));
-    window.addEventListener("mouseup", this.fireOnDragEnd.bind(this));
+    window.addEventListener("mouseup", this.fireOnDragEnd);
   }
 
   cleanup() {
-    window.removeEventListener("mouseup", this.fireOnDragEnd.bind(this));
+    window.removeEventListener("mouseup", this.fireOnDragEnd);
   }
 
   render() {
@@ -294,11 +307,15 @@ export default class Chessboard {
     this.render();
   }
 
-  fireOnDragStart(sq: string) {
-    this.options.onDragStart?.(sq);
+  fireOnClick = (sq: string, piece: MaybePieceSymbol) => {
+    this.options.onClick?.(sq, isPiece(piece) ? piece : undefined);
   }
 
-  fireOnDragEnd() {
+  fireOnDragStart = (sq: string): boolean | undefined => {
+    return this.options.onDragStart?.(sq);
+  }
+
+  fireOnDragEnd = () => {
     this.options.onDragEnd?.();
   }
 
