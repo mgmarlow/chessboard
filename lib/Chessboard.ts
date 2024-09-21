@@ -6,18 +6,18 @@ import {
   eventListenersModule,
   VNode,
 } from "snabbdom";
-import bb from "./caliente/bb.svg";
-import bw from "./caliente/bw.svg";
-import kb from "./caliente/kb.svg";
-import kw from "./caliente/kw.svg";
-import nb from "./caliente/nb.svg";
-import nw from "./caliente/nw.svg";
-import pb from "./caliente/pb.svg";
-import pw from "./caliente/pw.svg";
-import qb from "./caliente/qb.svg";
-import qw from "./caliente/qw.svg";
-import rb from "./caliente/rb.svg";
-import rw from "./caliente/rw.svg";
+import bb from "./img/cburnett/bb.svg";
+import bw from "./img/cburnett/wb.svg";
+import kb from "./img/cburnett/bk.svg";
+import kw from "./img/cburnett/wk.svg";
+import nb from "./img/cburnett/bn.svg";
+import nw from "./img/cburnett/wn.svg";
+import pb from "./img/cburnett/bp.svg";
+import pw from "./img/cburnett/wp.svg";
+import qb from "./img/cburnett/bq.svg";
+import qw from "./img/cburnett/wq.svg";
+import rb from "./img/cburnett/br.svg";
+import rw from "./img/cburnett/wr.svg";
 
 let vnode: VNode;
 
